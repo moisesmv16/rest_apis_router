@@ -1,0 +1,22 @@
+/* ProductDetails.css */
+.available {
+  background-color: #d4edda; /* Verde claro */
+  color: #155724; /* Verde oscuro */
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.not-available {
+  background-color: #f8d7da; /* Rojo claro */
+  color: #721c24; /* Rojo oscuro */
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* Botón en hover */
+button:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s ease-in-out;
+}
