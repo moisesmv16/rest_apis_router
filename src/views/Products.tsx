@@ -9,7 +9,7 @@ import autoTable from "jspdf-autotable";
 
 export async function loader() {
     const products = await getProducts();
-    return products;
+    return products ?? [];
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -20,6 +20,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Products() {
     const products = useLoaderData() as Product[];
+    if (!products || !Array.isArray(products)) {
+        return <p>Cargando o sin productos...</p>;
+    }
 
     // Función para exportar PDF
     const handleExportPDF = () => {
