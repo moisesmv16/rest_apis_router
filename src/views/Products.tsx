@@ -88,19 +88,16 @@ export default function Products() {
                         </tr>
                     </thead>
                     <tbody>
-                        {products && Array.isArray(products) ? (
-                            products.map(product => (
-                                <ProductDetails
-                                    key={product.id}
-                                    product={product}
-                                />
-                            ))
-                        ) : (
-                            <tr><td colSpan={4}>No products available</td></tr>
-                        )}
+                        {products.map(product => (
+                            <ProductDetails
+                                key={product.id}
+                                product={product}
+                            />
+                        ))}
                     </tbody>
                 </table>
             </div>
         </>
     );
 }
+
