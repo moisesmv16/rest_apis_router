@@ -9,7 +9,7 @@ import autoTable from "jspdf-autotable";
 
 export async function loader() {
     const products = await getProducts();
-    return products;
+    return products ?? []; // ✅ Devuelve un arreglo vacío si es null/undefined
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -19,42 +19,43 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Products() {
-    const products = useLoaderData() as Product[];
+    const products = useLoaderData() as Product[]; // ya debe ser un array por el loader corregido
 
     // Función para exportar PDF
     const handleExportPDF = () => {
-    const doc = new jsPDF();
-    console.log("Botón presionado");
+        const doc = new jsPDF();
+        console.log("Botón presionado");
 
-    doc.setFontSize(18);
-    doc.text("Listado de Productos", 14, 22);
+        doc.setFontSize(18);
+        doc.text("Listado de Productos", 14, 22);
 
-    const fecha = new Date().toLocaleString();
-    doc.setFontSize(10);
-    doc.text(`Fecha de exportación: ${fecha}`, 14, 30);
+        const fecha = new Date().toLocaleString();
+        doc.setFontSize(10);
+        doc.text(`Fecha de exportación: ${fecha}`, 14, 30);
 
-    const headers = [["Producto", "Precio", "Disponibilidad"]];
-    const data = products.map(prod => {
-        const precioFormateado = typeof prod.price === 'number' && !isNaN(prod.price)
-            ? prod.price.toFixed(2)
-            : '0.00';
-        return [
-            prod.name,
-            `$${precioFormateado}`,
-            prod.availability ? "Disponible" : "No disponible"
-        ];
-    });
+        const headers = [["Producto", "Precio", "Disponibilidad"]];
+        const data = products.map(prod => {
+            const precioFormateado = typeof prod.price === 'number' && !isNaN(prod.price)
+                ? prod.price.toFixed(2)
+                : '0.00';
+            return [
+                prod.name,
+                `$${precioFormateado}`,
+                prod.availability ? "Disponible" : "No disponible"
+            ];
+        });
 
-    autoTable(doc, {
-        startY: 40,
-        head: headers,
-        body: data,
-        styles: { fontSize: 11 },
-        theme: "grid",
-    });
+        autoTable(doc, {
+            startY: 40,
+            head: headers,
+            body: data,
+            styles: { fontSize: 11 },
+            theme: "grid",
+        });
 
-    doc.save("productos.pdf");
-};
+        doc.save("productos.pdf");
+    };
+
     return (
         <>
             <div className="flex justify-between items-center">
@@ -88,16 +89,23 @@ export default function Products() {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map(product => (
-                            <ProductDetails
-                                key={product.id}
-                                product={product}
-                            />
-                        ))}
+                        {products.length > 0 ? (
+                            products.map(product => (
+                                <ProductDetails
+                                    key={product.id}
+                                    product={product}
+                                />
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={4} className="text-center p-4">
+                                    No hay productos disponibles.
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
         </>
     );
 }
-
