@@ -9,7 +9,7 @@ import autoTable from "jspdf-autotable";
 
 export async function loader() {
     const products = await getProducts();
-    return products ?? [];
+    return products;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -20,9 +20,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Products() {
     const products = useLoaderData() as Product[];
-    if (!products || !Array.isArray(products)) {
-        return <p>Cargando o sin productos...</p>;
-    }
 
     // Función para exportar PDF
     const handleExportPDF = () => {
@@ -37,16 +34,21 @@ export default function Products() {
     doc.text(`Fecha de exportación: ${fecha}`, 14, 30);
 
     const headers = [["Producto", "Precio", "Disponibilidad"]];
-    const data = products.map(prod => {
-        const precioFormateado = typeof prod.price === 'number' && !isNaN(prod.price)
-            ? prod.price.toFixed(2)
-            : '0.00';
-        return [
-            prod.name,
-            `$${precioFormateado}`,
-            prod.availability ? "Disponible" : "No disponible"
-        ];
-    });
+    const data = [];
+
+    if (Array.isArray(products)) {
+        for (let i = 0; i < products.length; i++) {
+            const prod = products[i];
+            const precioFormateado = typeof prod.price === 'number' && !isNaN(prod.price)
+                ? prod.price.toFixed(2)
+                : '0.00';
+            data.push([
+                prod.name,
+                `$${precioFormateado}`,
+                prod.availability ? "Disponible" : "No disponible"
+            ]);
+        }
+    }
 
     autoTable(doc, {
         startY: 40,
@@ -58,6 +60,7 @@ export default function Products() {
 
     doc.save("productos.pdf");
 };
+
     return (
         <>
             <div className="flex justify-between items-center">
@@ -81,25 +84,37 @@ export default function Products() {
             </div>
 
             <div className="p-2">
-                <table className="w-full mt-5 table-auto">
-                    <thead className="bg-slate-800 text-white">
-                        <tr>
-                            <th className="p-2">Producto</th>
-                            <th className="p-2">Precio</th>
-                            <th className="p-2">Disponibilidad</th>
-                            <th className="p-2">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map(product => (
-                            <ProductDetails
-                                key={product.id}
-                                product={product}
-                            />
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+    <table className="w-full mt-5 table-auto">
+        <thead className="bg-slate-800 text-white">
+            <tr>
+                <th className="p-2">Producto</th>
+                <th className="p-2">Precio</th>
+                <th className="p-2">Disponibilidad</th>
+                <th className="p-2">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {
+                (() => {
+                    const rows = [];
+                    if (Array.isArray(products)) {
+                        for (let i = 0; i < products.length; i++) {
+                            const product = products[i];
+                            rows.push(
+                                <ProductDetails
+                                    key={product.id}
+                                    product={product}
+                                />
+                            );
+                        }
+                    }
+                    return rows;
+                })()
+            }
+        </tbody>
+    </table>
+</div>
+
         </>
     );
 }
